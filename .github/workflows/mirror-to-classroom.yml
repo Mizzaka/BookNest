@@ -16,5 +16,5 @@ jobs:
         env:
           CLASSROOM_PAT: ${{ secrets.CLASSROOM_PAT }}
         run: |
-          git remote add classroom https://Mizzaka:${{ secrets.CLASSROOM_PAT }}@github.com/Plymouth-University/coursework-group_66.git
+          git remote set-url classroom https://Mizzaka:${{ secrets.CLASSROOM_PAT }}@github.com/Plymouth-University/coursework-group_66.git
           git push classroom main --force
