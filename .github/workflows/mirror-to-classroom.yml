@@ -8,19 +8,19 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Verify remotes
-        run: git remote -v  # This will help verify if the remote is set
-
-      - name: Set remote and push to Classroom Repo
+      - name: Set up git configuration
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+      
+      - name: Add classroom remote and push to classroom repo
         env:
           CLASSROOM_PAT: ${{ secrets.CLASSROOM_PAT }}
         run: |
-          # Set the remote URL for the 'classroom' remote
-          git remote add classroom https://Mizzaka:${{ secrets.CLASSROOM_PAT }}@github.com/Plymouth-University/coursework-group_66.git
-          
-          # Push to the 'classroom' repo
+          git remote add classroom https://Mizzaka:${CLASSROOM_PAT}@github.com/Plymouth-University/coursework-group_66.git
           git push classroom main --force
