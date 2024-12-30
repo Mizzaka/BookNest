@@ -1,0 +1,18 @@
+name: Mirror to Classroom Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Push to Classroom Repo
+        run: |
+          git remote add classroom https://github.com/Plymouth-University/coursework-group_66.git
+          git push classroom main --force
