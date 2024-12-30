@@ -12,9 +12,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Push to Classroom Repo
+      - name: Verify remotes
+        run: git remote -v  # This will help verify if the remote is set
+
+      - name: Set remote and push to Classroom Repo
         env:
           CLASSROOM_PAT: ${{ secrets.CLASSROOM_PAT }}
         run: |
-          git remote set-url classroom https://Mizzaka:${{ secrets.CLASSROOM_PAT }}@github.com/Plymouth-University/coursework-group_66.git
+          # Set the remote URL for the 'classroom' remote
+          git remote add classroom https://Mizzaka:${{ secrets.CLASSROOM_PAT }}@github.com/Plymouth-University/coursework-group_66.git
+          
+          # Push to the 'classroom' repo
           git push classroom main --force
