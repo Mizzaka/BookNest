@@ -5,7 +5,7 @@ import { Grid, Box, Button, Dialog, DialogContent, DialogTitle } from "@mui/mate
 import AddIcon from "@mui/icons-material/Add";
 import TotalCard from "../components/TotalCard";
 import BookTable from "../components/BookTable";
-import LibrarianBookForm from "../components/LibrarianComponents/LibrarianBookForm";
+import LibrarianBookForm from "../components/LibrarianComponents/LibrarianComponents/LibrarianBookForm";
 import UpdateBookForm from "../components/UpdateBookForm";
 import axios from "axios";
 

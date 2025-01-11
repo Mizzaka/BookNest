@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Grid, Box } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import LibrarianTable from "../components/LibrarianComponents/LibrarianTable";
+import LibrarianTable from "../components/LibrarianComponents/LibrarianComponents/LibrarianTable";
 import axios from "axios";
 import AdminNavbar from "../components/AdminNavbar";
 import TotalCard from "../components/TotalCard";

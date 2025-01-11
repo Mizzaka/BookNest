@@ -5,7 +5,7 @@ import { Grid } from "@mui/material";
 import Box from "@mui/material/Box";
 import TotalCard from "../components/TotalCard";
 import SearchBar from "../components/SearchBar";
-import ReservationsTable from "../components/LibrarianComponents/ReservationsTable";
+import ReservationsTable from "../components/LibrarianComponents/LibrarianComponents/ReservationsTable";
 import axios from "axios"; // Add axios for API calls
 
 const ReservationsManage = () => {

@@ -1,215 +1,202 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { styled } from '@mui/material/styles';
-import InputBase from '@mui/material/InputBase';
-import SearchIcon from '@mui/icons-material/Search';
-import { Card, CardContent, CardMedia, Typography, Grid } from '@mui/material';
-import { Link } from "react-router-dom";
+import Background from '../assets/Rectangle.png'
 
+import {
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-// Search bar styles
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: '2rem',
-  border: '2px solid rgb(12, 57, 155)',
-  backgroundColor: '#fff',
-  boxShadow: '0px 2px 4px rgba(20, 101, 194, 0.1)',
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 2),
-  width: '20rem',
-  height: '2rem',
-}));
+function Form({ setAuthToken, setRole }) {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  marginRight: theme.spacing(1),
-  color: 'rgb(12, 57, 155)',
-  display: 'flex',
-  alignItems: 'center',
-}));
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: '#7f7f7f',
-  fontSize: '0.9rem',
-  flex: 1,
-  '& .MuiInputBase-input': {
-    width: '100%',
-    height: '100%',
-    padding: 0,
-  },
-}));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/login", formData);
+      const { accessToken, user } = response.data;
+      const { role } = user;
 
-function MainHome() {
+      setAuthToken(accessToken);
+      setRole(role);
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("role", role);
 
+      
 
-  const [books, setBooks] = useState([]);
-
-  useEffect(() => {
-    // Fetch books from the backend
-    axios
-      .get("http://localhost:5000/api/books") // Update with your API endpoint
-      .then((response) => {
-        setBooks(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching books:", error);
-      });
-  }, []);
- 
-
-  const handleBookClick = (bookId) => {
-    window.location.href = `/bookpreview/${bookId}`;
+      if (role === "admin") {
+        navigate("/admin");
+      } else if (role === "librarian") {
+        navigate("/bookmanage");
+      } else {
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error("Error logging in:", error.response?.data || error.message);
+      setError(error.response?.data?.message || "Failed to log in.");
+    }
   };
 
   return (
-    <>
-      <div className="head-items">
-        <h1>Good Morning</h1>
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase placeholder="Search by book name, Author, Subject" inputProps={{ 'aria-label': 'search' }} />
-        </Search>
-        <style>
-          {`
-            .head-items {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              height: 10vh;
-              font-size: 5rem;
-              max-width: 1680px;
-              margin: 1rem auto;
-              padding: 0 2rem;
-            }
+    <Box
+      sx={{
+        fontFamily: "poppins",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "98.5vh",
+        backgroundImage: `url(${Background})`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        padding: 0,
+        overflowX: "hidden",
+        cursor: "pointer",
+      }}
+    >
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          maxWidth: "350px",
+          width: "100%",
+          padding: "20px",
+          borderRadius: "8px",
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+        }}
+      >
+        <img
+          src="src/assets/logoo.png"
+          alt="Logo"
+          style={{
+            width: "35%",
+            height: "auto",
+            display: "block",
+            margin: '0 auto',
+          }}
+        />
+        <Typography
+          variant="h5"
+          component="h1"
+          sx={{ 
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#0653B8",
+            fontSize: "larger",
+            fontFamily: "inter",
+          }}
+        >
+          Welcome back!
+          <p
+            style={{
+              color: "rgba(171, 171, 171, 1)",
+              fontSize: "0.9rem",
+              justifyContent: "center",
+              fontFamily: "inter",
+              alignItems: "center",
+              marginBottom: "10px",
+              marginTop: "5px"
+            }}
+          >
+            Sign in to continue to your Digital Library
+          </p>
+        </Typography>
 
-            h1 {
-              margin: 0;
-              font-size: 2rem;
-              font-weight: bold;
-              color: #333;
-              margin-left: -20px
-            }
-          `}
-        </style>
-      </div>
-
-      <div className="card-one">
-        <h2 className="card-h2">New Arrivals</h2>
-        <a className="show-btn" href="/showall">
-          show all
+        <TextField
+          label="Email"
+          name="email"
+          type="email"
+          variant="outlined"
+          fullWidth
+          required
+          value={formData.email}
+          onChange={handleInputChange}
+          sx={{ marginBottom: "16px" }}
+        />
+        <TextField
+          label="Password"
+          name="password"
+          type="password"
+          variant="outlined"
+          fullWidth
+          required
+          value={formData.password}
+          onChange={handleInputChange}
+          sx={{ marginBottom: "16px" }}
+        />
+        <FormControlLabel
+          control={<Checkbox />}
+          label="Remember Me"
+          sx={{  }}
+        />
+        <a
+          href="https://example.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontSize: "small",
+            width: '100%',
+            marginBottom: "10px"
+          }}
+        >
+          Forgot password ?
         </a>
-
-        <style>
-          {`
-            .card-one {
-              max-width: 1680px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin: 1rem auto;
-              padding: 0 1rem;
-              gap: 1rem;
-              flex-wrap: wrap;
-            }
-
-            .card-h2 {
-              font-size: 1.5rem;
-              font-family: 'inter', sans-serif;
-              font-weight: normal;
-              margin: 0;
-              flex-shrink: 0;
-            }
-
-            .show-btn {
-              padding: 0.5rem 1rem;
-              text-decoration: none;
-              font-family: 'Poppins', sans-serif;
-              font-size: 1rem;
-              flex-shrink: 0;
-            }
-
-            @media (max-width: 768px) {
-              .card-one {
-                flex-direction: column;
-                align-items: flex-start;
-              }
-
-              .card-h2, .show-btn {
-                margin-bottom: 0.5rem;
-              }
-            }
-          `}
-        </style>
-      </div>
-
-      {/* Cards Section */}
-      <Grid container spacing={2} style={{ maxWidth: '1680px', margin: '1rem auto', gap:'70px' , marginTop:"30px"}}>
-      {books.map((book, index) => (
-        <div key={book._id}>
-          <Grid item xs={6} sm={4} md={3} lg={1.714} key={index}>
-            <Card
-            onClick={() => handleBookClick(book._id)}
-              sx={{
-                height: '400px',
-                width: '250px',
-                padding: '10px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  backgroundColor: 'rgba(9, 96, 177, 0.11)',  
-                  boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)', 
-                  transform: 'scale(1.05)',  
-                }
-
-                
-              }}
-              className="card"
-            >
-              <CardMedia
-                component="img"
-                style={{
-                  height: '180px',
-                  width: 'auto',
-                  margin: '0 auto',
-                  paddingTop: '10px',
-                }}
-                image={book.coverImageURL || "/default-image.png"}
-                alt={`Cover of ${book.title}`}
-              />
-              <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                <Typography
-                  gutterBottom
-                  variant="h6"
-                  component="div"
-                  style={{ fontWeight: 'bold', marginBottom: '10px' }}
-                >
-                   {book.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {book.author}
-                </Typography>
-              </CardContent>
-              <div style={{ textAlign: 'left', padding: '10px'  }}>
-                <span style={{ fontWeight: 'bold' }}>{book.genre}</span>
-                <span style={{ fontWeight: 'normal', marginLeft:'70px' }}>{book.publishedYear}</span>
-              </div>
-            </Card>
-          </Grid>
-          
-          </div>
-        ))}
-      </Grid>
-
-      
-
-      
-    </>
+        {error && (
+          <Typography
+            color="error"
+            sx={{
+              fontSize: "small",
+              marginBottom: "10px",
+            }}
+          >
+            {error}
+          </Typography>
+        )}
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: "#0653B8",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "rgba(15, 56, 161, 1)",
+            },
+            fullWidth: true,
+          }}
+          type="submit"
+        >
+          Login
+        </Button>
+        <Typography
+          sx={{
+            fontFamily: "Inter",
+            fontSize: "small",
+            textAlign: "center",
+          }}
+        >
+          New User?{" "}
+          <a href="/register" target="_blank" rel="noopener noreferrer">
+            Register Here
+          </a>
+        </Typography>
+      </Box>
+    </Box>
   );
 }
 
-export default MainHome;
+export default Form;
