@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./Home"; // Import the Home component
-import Admin from "./Admin"; 
-
+import Admin from "./Admin";
+import BookPreview from "./BookPreview";
+import MyShelf from "./MyShelf";
 
 const App = () => {
   const [selectedBookId, setSelectedBookId] = useState(null);
@@ -98,6 +99,8 @@ const App = () => {
           /> */}
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/bookpreview" element={<BookPreview />} />
+          <Route path="/myshelf" element={<MyShelf />} />
         </Routes>
           
       </div>
