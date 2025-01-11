@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,45 +9,45 @@ import {
   IconButton,
   Collapse,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Typography,
+  Button,
 } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp, Edit, Delete } from "@mui/icons-material";
-import Typography from "@mui/material/Typography";
+import axios from "axios";
 
-const Row = ({ row }) => {
-  const [open, setOpen] = React.useState(false);
+const Row = ({ row, columns, onEdit, onDelete }) => {
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       <TableRow>
         <TableCell>
-          <IconButton
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
+          <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
         </TableCell>
-        <TableCell>{row.title}</TableCell>
-        <TableCell>{row.author}</TableCell>
-        <TableCell>{row.genre}</TableCell>
-        <TableCell>{row.availableCopies}</TableCell>
-        <TableCell>{row.totalCopies}</TableCell>
+        {columns.map((column) => (
+          <TableCell key={column.field}>{row[column.field]}</TableCell>
+        ))}
         <TableCell>
-          <IconButton color="primary">
+          <IconButton color="primary" onClick={() => onEdit(row)}>
             <Edit />
           </IconButton>
-          <IconButton color="error">
+          <IconButton color="error" onClick={() => onDelete(row.id || row._id)}>
             <Delete />
           </IconButton>
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={columns.length + 2}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="body2">
-                Additional book details can go here.
-              </Typography>
+              <Typography variant="body2">Additional details can go here.</Typography>
             </Box>
           </Collapse>
         </TableCell>
@@ -56,28 +56,75 @@ const Row = ({ row }) => {
   );
 };
 
-const BookTable = ({ books }) => {
+const BookTable = ({ data, columns, onEdit, onDeleteSuccess }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const handleOpenDeleteDialog = (id) => {
+    setSelectedRowId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedRowId) {
+      console.error("No ID provided for deletion.");
+      return;
+    }
+    try {
+      await axios.delete(`http://localhost:5000/api/books/${selectedRowId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, // Add token if required
+      });
+      console.log("Deleted book with ID:", selectedRowId);
+      onDeleteSuccess(selectedRowId); // Notify parent to update state
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error("Error deleting book:", error.response?.data || error.message);
+    }
+  };
+
   return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>Title</TableCell>
-            <TableCell>Author</TableCell>
-            <TableCell>Genre</TableCell>
-            <TableCell>Available Copies</TableCell>
-            <TableCell>Total Copies</TableCell>
-            <TableCell>Manage</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {books.map((row) => (
-            <Row key={row.id} row={row} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              {columns.map((column) => (
+                <TableCell key={column.field}>{column.title}</TableCell>
+              ))}
+              <TableCell>Manage</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.map((row) => (
+              <Row
+                key={row.id || row._id}
+                row={row}
+                columns={columns}
+                onEdit={onEdit}
+                onDelete={handleOpenDeleteDialog}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this book? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button color="error" onClick={handleDelete}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
