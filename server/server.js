@@ -5,7 +5,7 @@ const cors = require("cors");
 const http = require("http"); // Required for integrating Socket.IO with Express
 const { Server } = require("socket.io"); // Import Socket.IO
 require("./jobs"); // Import scheduled jobs if required
-const app = require("./app"); 
+
 
 // Import route handlers
 const branchRoutes = require("./routes/branchRoutes");
@@ -18,7 +18,7 @@ const authRoutes = require("./routes/authRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 
-
+const app = express();
 
 // Middleware
 app.use(cors());
@@ -26,7 +26,7 @@ app.use(express.json());
 
 
 // Environment variables
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 const MONGODB_URL = process.env.MONGODB_URL;
 
 // Create HTTP server for Express
