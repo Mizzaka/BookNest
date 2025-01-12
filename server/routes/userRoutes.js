@@ -16,10 +16,10 @@ router.post("/", createUser);
 
 
 // get all users
-router.get("/",authenticateUser, authorizeRole("librarian"), getAllUsers); // Only librarians can see all users
+router.get("/", getAllUsers); // Only librarians can see all users
 
 // get a  user by ID
-router.get("/:id",authenticateUser, getUserById); // Any logged-in user can access their data
+router.get("/:id", getUserById); // Any logged-in user can access their data
 
 // update a user by ID
 router.put("/:id", updateUser);

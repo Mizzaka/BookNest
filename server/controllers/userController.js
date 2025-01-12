@@ -1,5 +1,5 @@
 const User = require("../models/User"); 
-const bcrypt = require("bcrypt"); // password hashing
+const bcrypt = require("bcryptjs"); // password hashing
 const jwt = require("jsonwebtoken");
 
 
@@ -69,7 +69,18 @@ const createUser = async (req, res) => {
   const { fullName, email, password, phoneNumber } = req.body;
 
   try {
-    // Check user already exists
+    // Validate required fields
+    if (!fullName || !email || !password) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
@@ -79,17 +90,20 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-
+    // Create new user
     const user = new User({
       fullName,
       email,
-      passwordHash, 
+      passwordHash,
       phoneNumber,
     });
 
-    
+    // Save user and remove sensitive data from response
     const savedUser = await user.save();
-    res.status(201).json(savedUser);
+    const userResponse = savedUser.toObject();
+    delete userResponse.passwordHash;
+
+    res.status(201).json(userResponse);
   } catch (error) {
     res.status(400).json({ message: "Error creating user", error: error.message });
   }

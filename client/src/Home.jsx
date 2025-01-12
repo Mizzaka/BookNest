@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "./components/Navbar";
-import MainHome from "./components/mainhome";
+import MainHome from "./components/MainHome";
 import Footer from "./components/Footer/Footer";
 
 

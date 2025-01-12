@@ -1,5 +1,5 @@
 import React from 'react';
-import './Footer.css';
+import '../Footer/footer.css';
 import BrownImage from '../../assets/Brown.png'; // Correct relative path to the image
 
 function Footer() {
