@@ -10,7 +10,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGODB_URL=mongodb://mongo:27017/booknest
+      - MONGODB_URL=mongodb+srv://Library:Library123@cluster0.g0m2zn8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
   mongo:
     image: mongo:5.0
     volumes:
