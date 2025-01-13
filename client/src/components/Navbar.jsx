@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // Import navigate hook
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -16,10 +17,11 @@ import logo from "../assets/logo.png";
 const pages = ["Home", "About", "Contribute", "Announcements"];
 const loggedInActions = ["Profile", "Logout"];
 
-function ResponsiveAppBar({ onLogout }) {
+function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
+  const navigate = useNavigate(); // Initialize navigate
+  
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -37,9 +39,11 @@ function ResponsiveAppBar({ onLogout }) {
   };
 
   const handleLogout = () => {
-    handleCloseUserMenu();
-    onLogout();
+    handleCloseUserMenu(); // Close the user menu
+    localStorage.removeItem("authToken"); // Clear authentication token
+    navigate("/login"); // Redirect to login form
   };
+
 
   const isLoggedIn = true;
 
@@ -152,7 +156,7 @@ function ResponsiveAppBar({ onLogout }) {
               </Button>
             ))}
             <Button
-              href="/my-shelf"
+              href="/myshelf"
               sx={{
                 my: 2,
                 color: "#434343",
@@ -165,19 +169,7 @@ function ResponsiveAppBar({ onLogout }) {
               My Shelf
             </Button>
 
-            <Button
-              href="/my-shelf"
-              sx={{
-                my: 2,
-                color: "#434343",
-                display: "block",
-                fontWeight: "bold",
-                marginLeft: "-8px",
-                marginRight: "16px",
-              }}
-            >
-              Events
-            </Button>
+            
           </Box>
 
           {/* User Avatar */}

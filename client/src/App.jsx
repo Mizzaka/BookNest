@@ -13,8 +13,7 @@ import LoginForm from "./components/LoginForm";
 import BookPreview from "./components/BookPreview";
 import MyShelf from "./MyShelf";
 import Register from "./components/register";
-
-
+import Landing from "./Landing"; // Import the Landing page
 
 const App = () => {
   const [authToken, setAuthToken] = useState(localStorage.getItem("token") || null);
@@ -76,16 +75,13 @@ const App = () => {
   return (
     <Router>
       <div>
-        
         <Routes>
+          <Route path="/" element={<Landing />} /> {/* Default route for Landing page */}
           <Route
             path="/login"
             element={<LoginForm setAuthToken={setAuthToken} setRole={setRole} />}
           />
-          <Route
-            path="/register"
-            element={<Register />}
-          />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/admin"
             element={
