@@ -1,108 +1,172 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./Home"; // Import the Home component
-import Admin from "./Admin";
-import BookPreview from "./BookPreview";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { io } from "socket.io-client"; // Import socket.io-client
+import Home from "./Home";
+import Admin from "./Admin/Admin";
+import LibrarianManage from "./Admin/LibrarianManage";
+import BranchManage from "./Admin/BranchManage";
+import AnnouncementManage from "./Admin/AnnouncementManage";
+import BookManage from "./Librarian/BookManage";
+import ReservationsManage from "./Librarian/ReservationsManage";
+import BorrowedListManage from "./Librarian/BorrowedListManage";
+import LoginForm from "./components/LoginForm";
+import BookPreview from "./components/BookPreview";
 import MyShelf from "./MyShelf";
+import Register from "./components/register";
+
+
 
 const App = () => {
-  const [selectedBookId, setSelectedBookId] = useState(null);
-  // const [authToken, setAuthToken] = useState(localStorage.getItem("token") || null); // Load token from localStorage
-  // const [role, setRole] = useState(localStorage.getItem("role") || null); // User role
-  const testUserId = "6759004e180635d651d78e11";
+  const [authToken, setAuthToken] = useState(localStorage.getItem("token") || null);
+  const [role, setRole] = useState(localStorage.getItem("role") || null);
+  const [isConnected, setIsConnected] = useState(false); // State for WebSocket connection
 
-  // useEffect(() => {
-  //   if (authToken) {
-  //     localStorage.setItem("token", authToken);
-  //   } else {
-  //     localStorage.removeItem("token");
-  //   }
+  useEffect(() => {
+    if (authToken) {
+      localStorage.setItem("token", authToken);
+    } else {
+      localStorage.removeItem("token");
+    }
 
-  //   if (role) {
-  //     localStorage.setItem("role", role);
-  //   } else {
-  //     localStorage.removeItem("role");
-  //   }
-  // }, [authToken, role]); // Dependency array to prevent infinite loop
+    if (role) {
+      localStorage.setItem("role", role);
+    } else {
+      localStorage.removeItem("role");
+    }
+  }, [authToken, role]);
 
-  // const handleLogout = () => {
-  //   setAuthToken(null);
-  //   setRole(null);
-  //   alert("You have been logged out!");
-  // };
+  useEffect(() => {
+    // Connect to the WebSocket server when the component mounts
+    const socket = io("http://localhost:5000");
+
+    // Listen for the 'connect' event
+    socket.on("connect", () => {
+      console.log("Connected to the WebSocket server");
+      setIsConnected(true);
+    });
+
+    // Listen for the 'disconnect' event
+    socket.on("disconnect", () => {
+      console.log("Disconnected from the WebSocket server");
+      setIsConnected(false);
+    });
+
+    // Clean up the socket connection when the component unmounts
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const handleLogout = () => {
+    setAuthToken(null);
+    setRole(null);
+    alert("You have been logged out!");
+  };
+
+  const PrivateRoute = ({ children, allowedRoles }) => {
+    if (!authToken) {
+      return <Navigate to="/" />;
+    }
+    if (allowedRoles && !allowedRoles.includes(role)) {
+      return <Navigate to="/" />;
+    }
+    return children;
+  };
 
   return (
     <Router>
       <div>
-       
-        {/* {authToken ? (
-          <button onClick={handleLogout}>Logout</button>
-        ) : null} */}
-
+        
         <Routes>
-          {/* <Route
-            path="/"
-            element={
-              authToken ? (
-                <Navigate to={role === "admin" ? "/admin" : role === "librarian" ? "/librarian" : "/user"} />
-              ) : (
-                <LoginForm setAuthToken={setAuthToken} setRole={setRole} />
-              )
-            }
-          /> */}
-          {/* <Route
+          <Route
+            path="/login"
+            element={<LoginForm setAuthToken={setAuthToken} setRole={setRole} />}
+          />
+          <Route
+            path="/register"
+            element={<Register />}
+          />
+          <Route
             path="/admin"
             element={
-              authToken && role === "admin" ? (
-                <>
-                  <h2>Admin Panel</h2>
-                  <BookAdd authToken={authToken} />
-                </>
-              ) : (
-                <Navigate to="/bookadding" />
-              )
+              <PrivateRoute allowedRoles={["admin"]}>
+                <Admin />
+              </PrivateRoute>
             }
-          /> */}
-          {/* <Route
-            path="/librarian"
+          />
+          <Route
+            path="/librarianmanage"
             element={
-              authToken && role === "librarian" ? (
-                <>
-                  <h2>Librarian Panel</h2>
-                  <LibrarianReservations />
-                  <BookAdd authToken={authToken} />
-                </>
-              ) : (
-                <Navigate to="/" />
-              )
+              <PrivateRoute allowedRoles={["admin"]}>
+                <LibrarianManage />
+              </PrivateRoute>
             }
-          /> */}
-          {/* <Route
-            path="/user"
+          />
+          <Route
+            path="/branchmanage"
             element={
-              authToken && role === "user" ? (
-                <>
-                  {!selectedBookId ? (
-                    <BooksList onBookSelect={setSelectedBookId} />
-                  ) : (
-                    <div>
-                      <button onClick={() => setSelectedBookId(null)}>Back to Books List</button>
-                      <BookDetails bookId={selectedBookId} />
-                    </div>
-                  )}
-                  <MyShelf userId={testUserId} />
-                </>
-              ) : (
-                <Navigate to="/" />
-              )
+              <PrivateRoute allowedRoles={["admin", "librarian"]}>
+                <BranchManage />
+              </PrivateRoute>
             }
-          /> */}
-          <Route path="/" element={<Home />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/bookpreview" element={<BookPreview />} />
-          <Route path="/myshelf" element={<MyShelf />} />
+          />
+          <Route
+            path="/announcementsmanage"
+            element={
+              <PrivateRoute allowedRoles={["admin", "librarian"]}>
+                <AnnouncementManage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bookmanage"
+            element={
+              <PrivateRoute allowedRoles={["librarian"]}>
+                <BookManage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/reservationsmanage"
+            element={
+              <PrivateRoute allowedRoles={["librarian"]}>
+                <ReservationsManage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/borrowed"
+            element={
+              <PrivateRoute allowedRoles={["librarian"]}>
+                <BorrowedListManage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute allowedRoles={["user"]}>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bookpreview/:id"
+            element={
+              <PrivateRoute allowedRoles={["user"]}>
+                <BookPreview />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/myshelf"
+            element={
+              <PrivateRoute allowedRoles={["user"]}>
+                <MyShelf />
+              </PrivateRoute>
+            }
+          />
         </Routes>
-          
       </div>
     </Router>
   );
