@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { toast, ToastContainer } from "react-toastify";
+
 import { useNavigate } from "react-router-dom";  // Import useNavigate from react-router-dom
-import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 
 const SocketTest = () => {
     const [isConnected, setIsConnected] = useState(false);
@@ -41,16 +40,7 @@ const SocketTest = () => {
             // Show the new announcement in the banner
             setBanner(announcement);
 
-            // Display the announcement as a toast notification
-            toast.info(`📢 ${announcement.title}: ${announcement.content}`, {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+           
         });
 
         // Clean up on unmount
@@ -71,7 +61,7 @@ const SocketTest = () => {
 
     return (
         <div style={{ paddingTop: banner ? "40px" : "0" }}> {/* Adjust padding for banner */} 
-            <ToastContainer /> {/* Required for Toastify */}
+           
 
             {/* Display Announcement Banner */}
             {banner && (
